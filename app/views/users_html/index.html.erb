@@ -1,0 +1,62 @@
+<h1>List of users</h1>
+
+<table border="1">
+  <tr>
+    <th>
+      Username
+    </th>
+
+    <th>
+      Private?
+    </th>
+
+    <th></th>
+    <th></th>
+  </tr>
+
+  <% @list_of_users.each do |a_user| %>
+    <tr>
+      <td>
+        <%= a_user.username %>
+      </td>
+
+      <td>
+        <% if a_user.private %>
+          Yes
+        <% else %>
+          No  
+        <% end %>
+      </td>
+
+      <td>
+        <% if current_user != nil %>
+          <% matching_f_req = FollowRequest.where({:sender_id => current_user.id, :recipient_id => a_user.id}) %>
+          <% if matching_f_req.count == 0 %>
+            <form action="/insert_follow_request" method="post">
+              <input type="hidden" name="recipient_id" value="<%= a_user.id %>">
+
+              <button>
+                Follow
+              </button>
+            </form>
+          <% elsif matching_f_req.last.status == "accepted" %>
+            <a href="/delete_follow_request/<%= matching_f_req.last.id %>">
+              Unfollow
+            </a>
+          <% elsif matching_f_req.last.status == "pending" %>
+            Request sent.
+            <a href="/delete_follow_request/<%= matching_f_req.last.id %>">
+              Cancel
+            </a>
+          <% end %>
+        <% end %>
+      </td>
+
+      <td>
+        <a href="/users/<%= a_user.username %>">
+          Show details
+        </a>
+      </td>
+    </tr>
+  <% end %>
+</table>
